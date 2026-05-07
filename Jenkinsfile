@@ -65,8 +65,11 @@ pipeline {
                     @echo off
                     call .venv\\Scripts\\activate.bat
                     echo Running pylint...
-                    pylint SWAGLABSTEST --disable=all --enable=E,F || echo Pylint check completed with issues
-                    echo Code quality checks completed
+                    python -m pylint SWAGLABSTEST\\locators SWAGLABSTEST\\pages SWAGLABSTEST\\utilities SWAGLABSTEST\\tests SWAGLABSTEST\\conftest.py --disable=all --enable=E,F
+                    if %ERRORLEVEL% neq 0 (
+                        echo Pylint check completed with issues
+                    )
+                    exit /b 0
                 '''
             }
         }
