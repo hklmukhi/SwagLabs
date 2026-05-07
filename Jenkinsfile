@@ -129,37 +129,49 @@ pipeline {
 
         success {
             echo '========== All Tests Passed Successfully =========='
-            emailext (
-                subject: "Build Successful - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                    Build Status: SUCCESS
-                    Job Name: ${env.JOB_NAME}
-                    Build Number: ${env.BUILD_NUMBER}
-                    Build URL: ${env.BUILD_URL}
+            script {
+                try {
+                    emailext (
+                        subject: "Build Successful - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        body: """
+                            Build Status: SUCCESS
+                            Job Name: ${env.JOB_NAME}
+                            Build Number: ${env.BUILD_NUMBER}
+                            Build URL: ${env.BUILD_URL}
 
-                    Allure Report: ${env.BUILD_URL}artifact/allure-report/index.html
-                """,
-                to: '${DEFAULT_RECIPIENTS}',
-                recipientProviders: [developers(), requestor()]
-            )
+                            Allure Report: ${env.BUILD_URL}artifact/allure-report/index.html
+                        """,
+                        to: '${DEFAULT_RECIPIENTS}',
+                        recipientProviders: [developers(), requestor()]
+                    )
+                } catch (err) {
+                    echo "Email notification failed: ${err}"
+                }
+            }
         }
 
         failure {
             echo '========== Build Failed =========='
-            emailext (
-                subject: "Build Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                    Build Status: FAILED
-                    Job Name: ${env.JOB_NAME}
-                    Build Number: ${env.BUILD_NUMBER}
-                    Build URL: ${env.BUILD_URL}
+            script {
+                try {
+                    emailext (
+                        subject: "Build Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        body: """
+                            Build Status: FAILED
+                            Job Name: ${env.JOB_NAME}
+                            Build Number: ${env.BUILD_NUMBER}
+                            Build URL: ${env.BUILD_URL}
 
-                    Check Allure Report: ${env.BUILD_URL}artifact/allure-report/index.html
-                    Console Output: ${env.BUILD_URL}console
-                """,
-                to: '${DEFAULT_RECIPIENTS}',
-                recipientProviders: [developers(), requestor(), brokenBuildSuspects()]
-            )
+                            Check Allure Report: ${env.BUILD_URL}artifact/allure-report/index.html
+                            Console Output: ${env.BUILD_URL}console
+                        """,
+                        to: '${DEFAULT_RECIPIENTS}',
+                        recipientProviders: [developers(), requestor(), brokenBuildSuspects()]
+                    )
+                } catch (err) {
+                    echo "Email notification failed: ${err}"
+                }
+            }
         }
 
         unstable {
