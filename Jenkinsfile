@@ -137,9 +137,13 @@ pipeline {
             echo '========== Build is Unstable =========='
         }
 
-        cleanup {
-            echo '========== Cleaning up workspace =========='
-            cleanWs()
+        always {
+            script {
+                node {
+                    echo '========== Cleaning up workspace =========='
+                    cleanWs()
+                }
+            }
         }
     }
 }
