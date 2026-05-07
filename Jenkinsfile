@@ -65,7 +65,7 @@ pipeline {
                     @echo off
                     call .venv\\Scripts\\activate.bat
                     echo Running pylint...
-                    pylint SWAGLABSTEST --disable=all --enable=E,F || echo Pylint found issues
+                    pylint SWAGLABSTEST --disable=all --enable=E,F || echo Pylint check completed with issues
                     echo Code quality checks completed
                 '''
             }
@@ -122,9 +122,10 @@ pipeline {
     }
 
     post {
-        always {
-            echo '========== Build Pipeline Completed =========='
-            cleanWs()
+        failure {
+            echo '========== Build Failed =========='
+            echo "Check logs: ${env.BUILD_URL}console"
+            echo "Allure Report: ${env.BUILD_URL}artifact/allure-report/index.html"
         }
 
         success {
@@ -132,14 +133,13 @@ pipeline {
             echo "Build URL: ${env.BUILD_URL}artifact/allure-report/index.html"
         }
 
-        failure {
-            echo '========== Build Failed =========='
-            echo "Check logs: ${env.BUILD_URL}console"
-            echo "Allure Report: ${env.BUILD_URL}artifact/allure-report/index.html"
-        }
-
         unstable {
             echo '========== Build is Unstable =========='
+        }
+
+        cleanup {
+            echo '========== Cleaning up workspace =========='
+            cleanWs()
         }
     }
 }
