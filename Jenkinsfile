@@ -129,49 +129,13 @@ pipeline {
 
         success {
             echo '========== All Tests Passed Successfully =========='
-            script {
-                try {
-                    emailext (
-                        subject: "Build Successful - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                        body: """
-                            Build Status: SUCCESS
-                            Job Name: ${env.JOB_NAME}
-                            Build Number: ${env.BUILD_NUMBER}
-                            Build URL: ${env.BUILD_URL}
-
-                            Allure Report: ${env.BUILD_URL}artifact/allure-report/index.html
-                        """,
-                        to: '${DEFAULT_RECIPIENTS}',
-                        recipientProviders: [developers(), requestor()]
-                    )
-                } catch (err) {
-                    echo "Email notification failed: ${err}"
-                }
-            }
+            echo "Build URL: ${env.BUILD_URL}artifact/allure-report/index.html"
         }
 
         failure {
             echo '========== Build Failed =========='
-            script {
-                try {
-                    emailext (
-                        subject: "Build Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                        body: """
-                            Build Status: FAILED
-                            Job Name: ${env.JOB_NAME}
-                            Build Number: ${env.BUILD_NUMBER}
-                            Build URL: ${env.BUILD_URL}
-
-                            Check Allure Report: ${env.BUILD_URL}artifact/allure-report/index.html
-                            Console Output: ${env.BUILD_URL}console
-                        """,
-                        to: '${DEFAULT_RECIPIENTS}',
-                        recipientProviders: [developers(), requestor(), brokenBuildSuspects()]
-                    )
-                } catch (err) {
-                    echo "Email notification failed: ${err}"
-                }
-            }
+            echo "Check logs: ${env.BUILD_URL}console"
+            echo "Allure Report: ${env.BUILD_URL}artifact/allure-report/index.html"
         }
 
         unstable {
